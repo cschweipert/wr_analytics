@@ -3,11 +3,11 @@ from models.metrics import Metric
 
 METRIC_DESIGNERS = [
     'Research Group Eticonsum',
-    'Fashio Revolution',
+    'Fashion Revolution',
     'Higher Education Statistics Agency (HESA)',
     'World Benchmarking Alliance',
     'Global Reporting Initiative',
-    'US Seecurities and Exchange Commision',
+    'US Securities and Exchange Commission',
     'Clean Clothes Campaign'
     ]
 
@@ -18,14 +18,27 @@ class Metrics:
         self.db_session = db_session
 
     def get_metrics_by_designer(self, metric_designer):
-        return self.wr_api.get_metrics(metric_designer=metric_designer)
+        batch_size = 100
+        offset = 0
+        metrics = []
+        while True:
+            batch_metrics = self.wr_api.get_metrics(
+                limit=batch_size,
+                offset=offset,
+                metric_designer=metric_designer
+                )
+            metrics.extend(batch_metrics)
+            offset += batch_size
+            if len(batch_metrics) < batch_size:
+                break
+        return metrics
 
     def fetch_all_metrics(self):
-        all_metrics = []
         for designer in METRIC_DESIGNERS:
             metrics = self.get_metrics_by_designer(designer)
-            all_metrics.extend(metrics)
-        return all_metrics
+            if len(metrics) > 0:
+                serialized_metrics = self.serialize_metrics(metrics)
+                self.insert_metrics(serialized_metrics)
 
     def serialize_metrics(self, metrics):
         serialized_metrics = []
@@ -38,7 +51,6 @@ class Metrics:
                 'unit': metric.unit,
                 'answers': metric.answers,
                 'bookmarkers': metric.bookmarkers,
-                'value_options': metric.value_options,
                 'value_type': metric.value_type
             }
             serialized_metrics.append(serialized_metric)

@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from decouple import config
 
-from jobs.metrics import Metrics, METRIC_DESIGNERS
+from jobs.metrics import Metrics
 from models.metrics import Base
 from wr_api import WikirateAPI
 
@@ -27,10 +27,7 @@ async def root():
 
 @app.get('/fetch-metrics/')
 def fetch_metrics():
-    metrics = []
-    for designer in METRIC_DESIGNERS:
-        metrics += metrics_data.get_metrics_by_designer(designer)
-
+    metrics = metrics_data.fetch_all_metrics()
     serialized_metrics = metrics_data.serialize_metrics(metrics)
     metrics_data.insert_metrics(serialized_metrics)
     return serialized_metrics
