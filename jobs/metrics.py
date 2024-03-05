@@ -1,77 +1,56 @@
 from sqlalchemy.exc import IntegrityError
-from models.metrics import Metric
 
-METRIC_DESIGNERS = [
-    'Research Group Eticonsum',
-    'Fashion Revolution',
-    'Higher Education Statistics Agency (HESA)',
-    'World Benchmarking Alliance',
-    'Global Reporting Initiative',
-    'US Securities and Exchange Commission',
-    'Clean Clothes Campaign'
-    ]
+from models.metrics import Metric, RawMetric
 
 
-class Metrics:
-    def __init__(self, wr_api, db_session):
-        self.wr_api = wr_api
+class TransformMetrics:
+    def __init__(self, db_session):
         self.db_session = db_session
 
-    def get_metrics_by_designer(self, metric_designer):
-        batch_size = 100
-        offset = 0
-        metrics = []
-        while True:
-            batch_metrics = self.wr_api.get_metrics(
-                limit=batch_size,
-                offset=offset,
-                metric_designer=metric_designer
-                )
-            metrics.extend(batch_metrics)
-            offset += batch_size
-            if len(batch_metrics) < batch_size:
-                break
-        return metrics
-
-    def fetch_all_metrics(self):
-        for designer in METRIC_DESIGNERS:
-            metrics = self.get_metrics_by_designer(designer)
-            if len(metrics) > 0:
-                serialized_metrics = self.serialize_metrics(metrics)
-                self.insert_metrics(serialized_metrics)
-
-    def serialize_metrics(self, metrics):
-        serialized_metrics = []
-        for metric in metrics:
-            serialized_metric = {
-                'wr_id': metric.id,
-                'name': metric.name,
-                'designer': metric.designer,
-                'metric_type': metric.metric_type,
-                'unit': metric.unit,
-                'answers': metric.answers,
-                'bookmarkers': metric.bookmarkers,
-                'value_type': metric.value_type
-            }
-            serialized_metrics.append(serialized_metric)
-        return serialized_metrics
-
-    def insert_metrics(self, serialized_metrics):
+    def query_raw_metrics(self):
         session = self.db_session()
         try:
-            for metric_data in serialized_metrics:
-                wr_id = metric_data['wr_id']
-                existing_metric = (
-                    session.query(Metric)
-                    .filter_by(wr_id=wr_id)
-                    .first()
-                )
-                if not existing_metric:
-                    metric = Metric(**metric_data)
-                    session.add(metric)
+            query = session.query(
+                RawMetric.wr_id, 
+                RawMetric.name, 
+                RawMetric.designer, 
+                RawMetric.metric_type, 
+                RawMetric.unit, 
+                RawMetric.answers, 
+                RawMetric.bookmarkers, 
+                RawMetric.value_type
+            )
+            results = query.all()
+            return results
+        finally:
+            session.close()
+
+    def insert_metrics(self, data_rows):
+        session = self.db_session()
+        try:
+            for row in data_rows:
+                wr_id = row[0]
+                existing_data = session.query(Metric).filter_by(wr_id=wr_id).first()
+                if not existing_data:
+                    answer_data = {
+                        'wr_id': row[0],
+                        'name': row[1].lower() if isinstance(row[1], str) else row[1],
+                        'designer': row[2].lower() if isinstance(row[2], str) else row[2],
+                        'metric_type': row[3].lower() if isinstance(row[3], str) else row[3],
+                        'unit': row[4].lower() if isinstance(row[4], str) else row[4],
+                        'answers': row[5].lower() if isinstance(row[5], str) else row[5],
+                        'bookmarkers': row[6],
+                        'value_type': row[7].lower() if isinstance(row[7], str) else row[7],
+                    }
+                    answer_record = Metric(**answer_data)
+                    session.add(answer_record)
             session.commit()
         except IntegrityError as e:
             session.rollback()
             raise e
         finally:
             session.close()
+
+    def fetch_and_insert_data(self):
+        raw_metrics_data = self.query_raw_metrics()
+        self.insert_metrics(raw_metrics_data)

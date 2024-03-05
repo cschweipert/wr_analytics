@@ -20,8 +20,6 @@ class WikirateAPI:
         return self.api.get_metric(metric_id)
 
     def get_metrics(self, limit, offset, metric_designer=None):
-    #     """Method to fetch metrics from WikiRate."""
-    # def get_metrics(self, metric_designer=None):
         '''
         Fetch metrics, optionally filtered by a metric designer.
 
@@ -32,13 +30,23 @@ class WikirateAPI:
         Returns:
             Response from the API.
         '''
-        return self.api.get_metrics(limit=limit, offset=offset, designer=metric_designer)
+        return self.api.get_metrics(
+            limit=limit,
+            offset=offset,
+            designer=metric_designer)
 
     def get_answer(self, answer_id):
         return self.api.get_answer(answer_id)
 
-    def get_answers(self, metric_designer, metric_name):
-        return self.api.get_answers(metric_designer=metric_designer, metric_name=metric_name)
+    def get_answers(self,
+                    limit,
+                    offset,
+                    metric_name, metric_designer):
+        return self.api.get_answers(
+            limit=limit,
+            offset=offset,
+            metric_name=metric_name,
+            metric_designer=metric_designer)
 
 
 wr_api = WikirateAPI(config('WR_API_KEY'))
