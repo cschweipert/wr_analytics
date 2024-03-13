@@ -38,7 +38,7 @@ class TransformMetrics:
                         'designer': row[2].lower() if isinstance(row[2], str) else row[2],
                         'metric_type': row[3].lower() if isinstance(row[3], str) else row[3],
                         'unit': row[4].lower() if isinstance(row[4], str) else row[4],
-                        'answers': row[5].lower() if isinstance(row[5], str) else row[5],
+                        'answer_count': row[5].lower() if isinstance(row[5], str) else row[5],
                         'bookmarkers': row[6],
                         'value_type': row[7].lower() if isinstance(row[7], str) else row[7],
                     }

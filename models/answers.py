@@ -1,5 +1,8 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
+
 from utils.sql_event_listeners import CustomBaseClass
 
 
@@ -33,7 +36,10 @@ class Answer(CustomBaseClass):
     metric = Column(String)
     company = Column(String)
     value = Column(String)
-    year = Column(Integer)created_at = Column(DateTime, default=datetime.utcnow)
+    year = Column(Integer)
+    metric_id = Column(Integer, ForeignKey('metrics.id'))
+    metric_relation = relationship("Metric", backref="answers")  
+    created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(
         DateTime,
         default=datetime.utcnow,

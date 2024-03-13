@@ -54,7 +54,7 @@ class InsertRawMetric:
                 'topics': metric.topics if hasattr(metric, 'topics') else None,
                 'scores': metric.scores if hasattr(metric, 'scores') else None,
                 'formula': metric.formula if hasattr(metric, 'formula') else None,
-                'answers': metric.answers if hasattr(metric, 'answers') else None,
+                'answer_count': metric.answers if hasattr(metric, 'answers') else None,
                 'bookmarkers': metric.bookmarkers if hasattr(metric, 'bookmarkers') else None,
                 'projects': metric.projects if hasattr(metric, 'projects') else None,
                 'calculations': metric.calculations if hasattr(metric, 'calculations') else None,

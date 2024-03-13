@@ -4,9 +4,9 @@ from sqlalchemy.orm import sessionmaker
 from decouple import config
 
 from jobs.raw_metrics import InsertRawMetric
-from jobs.answers_gri_env import TransformAnswer
+from jobs.answers import TransformAnswer
 from jobs.clean_metrics import CleanMetric
-from jobs.raw_answers_gri_env import InsertRawAnswer
+from jobs.raw_answers import InsertRawAnswer
 from utils.sql_event_listeners import Base
 from wr_api import WikirateAPI
 
@@ -42,9 +42,10 @@ def fetch_and_insert_raw_answers():
     raw_answers_data.fetch_and_insert_answers()
 
 
-@app.get('/gri-answers/')
-def fetch_and_insert_gri_answers():
-    answers_data.fetch_and_insert_data()
+@app.get('/answers/')
+def fetch_and_insert_answers():
+    # answers_data.fetch_and_insert_data()
+    answers_data.add_metric_id()
 
 
 @app.get('/clean-metrics/')

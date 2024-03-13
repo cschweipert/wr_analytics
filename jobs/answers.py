@@ -1,6 +1,8 @@
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 from models.answers import Answer, RawAnswer
+from models.metrics import Metric
 
 
 class TransformAnswer:
@@ -48,3 +50,18 @@ class TransformAnswer:
     def fetch_and_insert_data(self):
         raw_answers_data = self.query_raw_answers()
         self.insert_data(raw_answers_data)
+
+    def add_metric_id(self):  # TODO: validation: unique key??
+        session = self.db_session()
+        try:
+            answers = session.query(Answer).all()
+            for answer in answers:
+                metric = session.query(Metric).filter(func.lower(answer.metric).contains(func.lower(Metric.name))).first()
+                if metric:
+                    answer.metric_id = metric.id
+            session.commit()
+        except IntegrityError as e:
+            session.rollback()
+            raise e
+        finally:
+            session.close()
