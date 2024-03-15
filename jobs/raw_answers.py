@@ -2,8 +2,7 @@ from typing import List, Any
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.future import select
 
-from models.answers import RawAnswer
-from models.metrics import RawMetric
+from models.models import RawAnswer, RawMetric
 
 
 DESIGNER = 'Global Reporting Initiative'

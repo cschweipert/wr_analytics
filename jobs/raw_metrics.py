@@ -1,6 +1,6 @@
 from sqlalchemy.exc import IntegrityError
 
-from models.metrics import RawMetric
+from models.models import RawMetric
 from utils.globals import METRIC_DESIGNERS
 
 

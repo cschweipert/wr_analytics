@@ -2,7 +2,7 @@ from typing import List
 from sqlalchemy import update, func
 from sqlalchemy.exc import SQLAlchemyError
 
-from models.metrics import Metric
+from models.models import Metric
 from utils.globals import ENVIRONMENTAL_UNITS, SOCIAL_UNITS
 
 

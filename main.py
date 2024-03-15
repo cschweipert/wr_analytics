@@ -7,6 +7,7 @@ from jobs.raw_metrics import InsertRawMetric
 from jobs.answers import TransformAnswer
 from jobs.clean_metrics import CleanMetric
 from jobs.raw_answers import InsertRawAnswer
+from jobs.clean_answers import CleanAnswers
 from utils.sql_event_listeners import Base
 from wr_api import WikirateAPI
 
@@ -24,7 +25,9 @@ wr_api = WikirateAPI(config('WR_API_KEY'))
 raw_metrics_data = InsertRawMetric(wr_api, SessionLocal)
 raw_answers_data = InsertRawAnswer(wr_api, SessionLocal)
 clean_metrics = CleanMetric(wr_api, SessionLocal)
+
 answers_data = TransformAnswer(SessionLocal)
+clean_answers = CleanAnswers(SessionLocal)
 
 
 @app.get('/')
@@ -51,3 +54,8 @@ def fetch_and_insert_answers():
 @app.get('/clean-metrics/')
 def transform_metrics_data():
     clean_metrics.update_to_lowercase_and_remove_whitespace()  # noqa E501
+
+
+@app.get('/clean-answers/')
+def clean_and_transform_answers():
+    clean_answers.clean_and_transform_answers()

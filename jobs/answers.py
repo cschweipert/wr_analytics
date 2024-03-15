@@ -1,8 +1,7 @@
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
-from models.answers import Answer, RawAnswer
-from models.metrics import Metric
+from models.models import Answer, RawAnswer, Metric
 
 
 class TransformAnswer:
